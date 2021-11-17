@@ -1,4 +1,4 @@
-const Workspace = require("../../models/workSpace.model");
+const Workspace = require("../../models/workspace.model");
 const User = require('../../models/auth.model');
 
 exports.createWorkspace = async (req, res, next) => {

@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
-const User = require('../models/user.model');
+const User = require('../../models/auth.model');
 
 const transporter = nodemailer.createTransport({
     service: "Gmail",
@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 
 exports.signup = async (req, res, next) => {
     const { email } = req.body
-    console.log(email, 8888888888)
+    console.log(email, 'located in function Signup', 88888888888888888888888888888888888888888888888)
 
     try {
         // Check if the email is in use
@@ -55,7 +55,7 @@ exports.signup = async (req, res, next) => {
 
 exports.login = async (req, res, next) =>{
     const { email } = req.body
-
+    console.log(email, 'located in function login', 88888888888888888888888888888888888888888888888)
     try {
         // Verify a user with the email exists
         const user = await User.findOne({email}).exec()
@@ -65,13 +65,27 @@ exports.login = async (req, res, next) =>{
             });
         }
 
+        // Checking if password is correct
+        const validPassword = await bcrypt.compare(req.body.password, user.password)
+        if(!validPassword) {
+            return res.status(400).send('Invalid Password');
+        }
+
         // Ensure the account has been verified
         if(!user.verified) {
+            console.log('User is not verified please Verify your Account.');
             return res.status(403).json({
                 message: 'User is not verified please Verify your Account.'
             })
         }
-        return res.status(200).json({
+
+        // creating and assigning a token
+        const token = jwt.sign({ id: user.id }, process.env.SECRET_TOKEN,
+            {
+                expiresIn: "5m"
+            })
+        return res.status(200).header('auth-token', token).json({
+            token,
             message: 'User logged in'
         })
     } catch (e) {
@@ -112,6 +126,7 @@ exports.verify = async (req, res, next) =>{
         // Update user verification status to true
         user.verified = true;
         await user.save();
+        console.log('User is not verified please Verify your Account.');
         return res.status(200).json({
             message: 'Account Verified'
         })

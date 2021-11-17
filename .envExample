@@ -1,0 +1,6 @@
+PORT=Your Port
+DB_CONNECT_URI = Your Mongo URI
+USER_VERIFICATION_TOKEN_SECRET = Your Secret Token
+SECRET_TOKEN = Your Second Secret Token
+EMAIL_USERNAME = Your Email
+EMAIL_PASSWORD = Your Email Password

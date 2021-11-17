@@ -3,14 +3,15 @@ const express = require('express');
 const app =  express();
 
 const connectToDb = require('./util/connectDb');
-const authController = require('./modules/endpoints');
+const authController = require('./modules/auth/endpoints');
+const userController = require('./modules/user/endpoints');
 
 connectToDb().catch((err)=>{
     console.log("Error connecting to mongo.", err);
 });
 
 app.use(express.json());
-app.use('/', authController);
+app.use('/', authController, userController);
 
 
 const port = process.env.PORT;

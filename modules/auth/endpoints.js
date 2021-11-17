@@ -1,8 +1,8 @@
 const { Router } = require('express');
 const router = Router()
 
-const { errorHandler } = require('../middleware/errorHandler');
-const { signupValidation, loginValidation } = require('../validations/auth.validation');
+const { errorHandler } = require('../../middleware/errorHandler');
+const { signupValidation, loginValidation } = require('../../validations/validations');
 const authController = require('./auth.controller');
 
 router.post('/signup', signupValidation, errorHandler, authController.signup);

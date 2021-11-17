@@ -13,6 +13,11 @@ const User = new Schema({
         default: false
     },
 
+    workSpaceId: [{
+      type: Schema.Types.ObjectId,
+      ref: 'workspaces',
+    }],
+
     name: {
         type: String,
         required: true
@@ -36,4 +41,4 @@ User.methods.generateVerificationToken = function () {
     return verifyToken
 }
 
-module.exports = model('User', User);
+module.exports = model('Users', User);

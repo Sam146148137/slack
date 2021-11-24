@@ -1,25 +1,17 @@
 const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
 const User = require('../../models/auth.model');
-
-const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-    },
-})
+const transporter = require('../../nodemailer/transporter');
 
 exports.signup = async (req, res, next) => {
     const { email } = req.body
-    console.log(email, 'located in function Signup', 88888888888888888888888888888888888888888888888)
 
     try {
         // Check if the email is in use
         const emailExist = await User.findOne({email}).exec();
         if(emailExist) {
+            console.log('Email already in use.');
             return res.status(409).json('Email already in use.');
         }
 
@@ -51,38 +43,36 @@ exports.signup = async (req, res, next) => {
     } catch (e) {
         next(e)
     }
-}
+};
 
 exports.login = async (req, res, next) =>{
-    const { email } = req.body
-    console.log(email, 'located in function login', 88888888888888888888888888888888888888888888888)
+    const { email } = req.body;
+
     try {
         // Verify a user with the email exists
-        const user = await User.findOne({email}).exec()
+        const user = await User.findOne({email}).exec();
         if(!user) {
-            return res.status(404).json({
-                message: 'User does not exists'
-            });
+            console.log('User does not exists');
+            return res.status(404).json({message: 'User does not exists'});
         }
 
         // Checking if password is correct
-        const validPassword = await bcrypt.compare(req.body.password, user.password)
+        const validPassword = await bcrypt.compare(req.body.password, user.password);
         if(!validPassword) {
+            console.log('Invalid Password');
             return res.status(400).send('Invalid Password');
         }
 
         // Ensure the account has been verified
         if(!user.verified) {
             console.log('User is not verified please Verify your Account.');
-            return res.status(403).json({
-                message: 'User is not verified please Verify your Account.'
-            })
+            return res.status(403).json({message: 'User is not verified please Verify your Account.'});
         }
 
         // creating and assigning a token
         const token = jwt.sign({ id: user.id }, process.env.SECRET_TOKEN,
             {
-                expiresIn: "5m"
+                expiresIn: "1h"
             })
         return res.status(200).header('auth-token', token).json({
             token,
@@ -91,46 +81,4 @@ exports.login = async (req, res, next) =>{
     } catch (e) {
         next(e);
     }
-}
-
-exports.verify = async (req, res, next) =>{
-    // Check we have an id
-    const { id } = req.params
-
-    if(!id) {
-        return res.status(422).json({
-            message: 'Missing Token'
-        })
-    }
-
-    // Verify the token from the URL
-    let payload = null
-    try {
-        payload = jwt.verify(
-            id,
-            process.env.USER_VERIFICATION_TOKEN_SECRET
-        );
-    } catch (e) {
-        next(e);
-    }
-
-    try {
-        // Find user with matching ID
-        const user = await User.findOne({_id: payload.ID}).exec();
-        if(!user){
-            return res.status(404).json({
-                message: 'User is not Found'
-            });
-        }
-
-        // Update user verification status to true
-        user.verified = true;
-        await user.save();
-        console.log('User is not verified please Verify your Account.');
-        return res.status(200).json({
-            message: 'Account Verified'
-        })
-    } catch (e) {
-        next(e);
-    }
-}
+};

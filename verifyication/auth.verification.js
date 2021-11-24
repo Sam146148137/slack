@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/auth.model");
+const User = require("../models/user.model");
 
 exports.verify = async (req, res, next) =>{
     // Check we have an id

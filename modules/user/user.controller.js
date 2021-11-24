@@ -1,5 +1,5 @@
 const Workspace = require("../../models/workspace.model");
-const User = require('../../models/auth.model');
+const User = require('../../models/user.model');
 const transporter = require('../../nodemailer/transporter');
 
 exports.createWorkspace = async (req, res, next) => {

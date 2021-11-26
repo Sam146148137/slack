@@ -5,8 +5,6 @@ const transporter = require('../../nodemailer/transporter');
 exports.createWorkspace = async (req, res, next) => {
 
     try {
-        console.log(req.user, 'located in function createWorkSpace', '========================================================');
-        
         // Creating and saving the workspace
         const workspace = await new Workspace({
             idMembers: req.user.id,
@@ -28,7 +26,7 @@ exports.createWorkspace = async (req, res, next) => {
 
         workspace.save();
         
-        console.log(`${req.body.workspaceName} Workspace is created`, '========================================================');
+        console.log(`${req.body.workspaceName} Workspace is created`);
         return res.status(200).json({message: `${req.body.workspaceName} Workspace is created`});
 
     } catch (e) {
@@ -48,15 +46,15 @@ exports.inviteUser = async (req, res, next) => {
         workspace = await workspace.findOne({_id: workspaceId});
 
         if (!workspace) {
+            console.log(`${workspaceId} workspace Id not found`);
             return res.status(404).json({message: `${workspaceId} workspace Id not found`});
         }
 
         findUserIdInCurrentWorkspaceIdMembers = workspace.idMembers.includes(userId);
 
         if(!findUserIdInCurrentWorkspaceIdMembers) {
-            return res.status(404).json({
-                message: `not found ${userId} in workspace idMembers`
-            });
+            console.log(`not found ${userId} in workspace idMembers`);
+            return res.status(404).json({message: `not found ${userId} in workspace idMembers`});
         }
 
         let user = await User.findOne({_id: userId});
